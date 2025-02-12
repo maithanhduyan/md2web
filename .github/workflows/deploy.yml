@@ -11,6 +11,20 @@ on:
       - static/**
       - requirements.txt
 
+  # Cho phép chạy thủ công từ giao diện Actions
+  workflow_dispatch:
+
+# Cấu hình quyền cho GITHUB_TOKEN
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Giới hạn chỉ một deployment chạy cùng lúc
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build:
     name: Build Site
@@ -18,7 +32,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v4

@@ -78,5 +78,5 @@ def nojekyll():
     print(f"[Tạo] {nojekyll_file}")
     
 if __name__ == '__main__':
-    traverse_content_dir()
     nojekyll()
+    traverse_content_dir()
