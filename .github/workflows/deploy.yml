@@ -10,12 +10,18 @@ on:
       - templates/**
       - static/**
       - requirements.txt
-      
+
   pull_request:
     branches: [ "master" ]
 
+  # Cho phép chạy thủ công từ giao diện Actions
+  workflow_dispatch:
+
+# Cấu hình quyền cho GITHUB_TOKEN
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 jobs:
 	# Build website
