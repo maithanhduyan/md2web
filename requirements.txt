@@ -1,0 +1,4 @@
+markdown
+jinja2
+python-frontmatter
+watchdog  # nếu bạn muốn dùng cho việc theo dõi thay đổi (trong CI/CD có thể không cần)

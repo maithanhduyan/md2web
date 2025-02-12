@@ -1,0 +1,149 @@
+# Cấu trúc Dự án như sau:
+
+```
+├── content
+│   ├── about.md
+│   ├── blogs
+│   │   ├── post1.md
+│   │   └── post2.md
+│   ├── index.md
+│   ├── magazine
+│   │   ├── article1.md
+│   │   └── article2.md
+│   └── quotes
+│       ├── quote1.md
+│       └── quote2.md
+├── generate.py
+├── templates
+│   ├── base.html
+│   ├── blog.html
+│   ├── magazine.html
+│   └── quotes.html
+└── watch.py
+```
+
+# Danh sách Các Tệp Dự án:
+
+## ../generate.py
+
+```
+import os
+import markdown
+import frontmatter
+from jinja2 import Environment, FileSystemLoader
+
+# Đường dẫn thư mục
+CONTENT_DIR = 'content'
+TEMPLATE_DIR = 'templates'
+OUTPUT_DIR = '.site'
+
+env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
+
+def process_markdown_file(md_path, relative_dir):
+    """
+    Xử lý một file Markdown:
+    - Nếu file HTML đầu ra đã tồn tại và mới hơn file Markdown, bỏ qua build.
+    - Ngược lại, chuyển đổi Markdown sang HTML và render qua template.
+    """
+    # Xác định đường dẫn file HTML đầu ra
+    output_subdir = os.path.join(OUTPUT_DIR, relative_dir)
+    os.makedirs(output_subdir, exist_ok=True)
+    html_filename = os.path.splitext(os.path.basename(md_path))[0] + '.html'
+    output_file = os.path.join(output_subdir, html_filename)
+
+    # Kiểm tra thời gian sửa đổi để thực hiện incremental build
+    if os.path.exists(output_file):
+        md_mtime = os.path.getmtime(md_path)
+        html_mtime = os.path.getmtime(output_file)
+        if md_mtime <= html_mtime:
+            print(f"[Bỏ qua] {output_file} đã mới hơn file Markdown.")
+            return  # Không cần build lại
+
+    # Đọc file Markdown và tách metadata (front matter)
+    post = frontmatter.load(md_path)
+    md_content = post.content
+    meta = post.metadata
+
+    # Chuyển Markdown sang HTML
+    html_body = markdown.markdown(md_content, extensions=['extra', 'meta'])
+
+    # Lựa chọn template theo metadata (mặc định là 'base')
+    layout = meta.get('layout', 'base')
+    template_name = f"{layout}.html"
+    try:
+        template = env.get_template(template_name)
+    except Exception as e:
+        print(f"Không tìm thấy template {template_name}, sử dụng base.html. Lỗi: {e}")
+        template = env.get_template('base.html')
+
+    # Render HTML với metadata và nội dung đã chuyển đổi
+    rendered_html = template.render(meta=meta, content=html_body)
+
+    # Ghi file HTML vào thư mục OUTPUT_DIR
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(rendered_html)
+    print(f"[Cập nhật] {output_file}")
+
+def traverse_content_dir():
+    """
+    Duyệt đệ quy thư mục CONTENT_DIR và xử lý tất cả các file Markdown.
+    Cấu trúc thư mục OUTPUT_DIR sẽ tương ứng với cấu trúc thư mục CONTENT_DIR.
+    """
+    for root, dirs, files in os.walk(CONTENT_DIR):
+        # Lấy đường dẫn tương đối so với CONTENT_DIR
+        relative_dir = os.path.relpath(root, CONTENT_DIR)
+        for file in files:
+            if file.endswith('.md'):
+                md_path = os.path.join(root, file)
+                process_markdown_file(md_path, relative_dir)
+
+if __name__ == '__main__':
+    traverse_content_dir()
+
+```
+
+ ## ../watch.py
+
+```
+import time
+import os
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+from generate import traverse_content_dir  # Giả sử hàm này build toàn bộ nội dung
+
+CONTENT_DIR = 'content'
+
+class MarkdownEventHandler(FileSystemEventHandler):
+    def on_modified(self, event):
+        # Chỉ xử lý nếu file được chỉnh sửa là file Markdown
+        if not event.is_directory and event.src_path.endswith('.md'):
+            print(f"[Modified] {event.src_path} đã thay đổi, cập nhật lại HTML...")
+            traverse_content_dir()  # Gọi hàm build toàn bộ hoặc có thể tùy chỉnh build cho file đó
+
+    def on_created(self, event):
+        if not event.is_directory and event.src_path.endswith('.md'):
+            print(f"[Created] {event.src_path} được tạo mới, cập nhật lại HTML...")
+            traverse_content_dir()
+
+    def on_deleted(self, event):
+        if not event.is_directory and event.src_path.endswith('.md'):
+            print(f"[Deleted] {event.src_path} đã bị xóa, cập nhật lại HTML...")
+            traverse_content_dir()
+
+if __name__ == "__main__":
+    event_handler = MarkdownEventHandler()
+    observer = Observer()
+    observer.schedule(event_handler, path=CONTENT_DIR, recursive=True)
+    observer.start()
+
+    print(f"Đang theo dõi thay đổi trong thư mục '{CONTENT_DIR}'... (Nhấn Ctrl+C để dừng)")
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
+
+```
+
+ 

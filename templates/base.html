@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ meta.title or "Trang Web Tĩnh" }}</title>
+    <meta name="description" content="{{ meta.description }}">
+    <meta name="keywords" content="{{ meta.keywords }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Open Graph cho chia sẻ trên mạng xã hội -->
+    <meta property="og:title" content="{{ meta.title }}">
+    <meta property="og:description" content="{{ meta.description }}">
+    <meta property="og:image" content="{{ meta.image }}">
+    <meta property="og:type" content="article">
+
+    <!-- CSS, icon, fonts -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Ví dụ sử dụng FontAwesome cho icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Ví dụ Bootstrap CDN (nếu muốn dùng Bootstrap) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <header>
+        <nav class="navbar">
+            <ul class="navbar-menu">
+                <li class="nav-item"><a href="/">Trang chủ</a></li>
+                <li class="nav-item"><a href="/blogs/">Blogs</a></li>
+                <li class="nav-item"><a href="/magazine/">Magazine</a></li>
+                <li class="nav-item"><a href="/quotes/">Quotes</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <!-- Nội dung chính với sidebar -->
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h3>Chuyên mục</h3>
+            <ul class="sidebar-menu">
+                <li><a href="/blogs/">Blogs</a></li>
+                <li><a href="/magazine/">Magazine</a></li>
+                <li><a href="/quotes/">Quotes</a></li>
+                <!-- Bạn có thể thêm các liên kết khác hoặc widget tùy ý -->
+            </ul>
+        </aside>
+        
+        <!-- Nội dung chính -->
+        <main class="main-content">
+            {{ content | safe }}
+        </main>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Blog của Tôi</p>
+    </footer>
+</body>
+</html>
