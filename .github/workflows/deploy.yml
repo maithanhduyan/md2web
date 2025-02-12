@@ -1,45 +1,41 @@
-name: Build and Deploy
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
-    # Theo dõi thay đổi đối với các file có thể ảnh hưởng đến website:
-    paths:
-      - '**/*.md'
-      - generate.py
-      - templates/**
-      - static/**
-      - requirements.txt
+    branches:
+      - main # Thay đổi thành branch chính của bạn nếu cần
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # Bước 1: Checkout mã nguồn
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Bước 2: Thiết lập môi trường Python
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'  # Hoặc phiên bản bạn muốn sử dụng
+          python-version: 3.x
 
-      # Bước 3: Cài đặt dependencies
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install markdown python-frontmatter jinja2
 
-      # Bước 4: Build website tĩnh
-      - name: Build static site
-        run: |
-          python generate.py
+      - name: Generate static site
+        run: python generate.py
 
-      # Bước 5: Deploy lên GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Prepare for GitHub Pages
+        run: mv .site docs # Đổi tên thư mục output sang docs
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./.site
+          path: "docs/" # Đường dẫn đến thư mục chứa site tĩnh
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v3
