@@ -6,7 +6,7 @@ from jinja2 import Environment, FileSystemLoader
 # Đường dẫn thư mục
 CONTENT_DIR = 'content'
 TEMPLATE_DIR = 'templates'
-OUTPUT_DIR = 'docs'
+OUTPUT_DIR = 'docs\website'
 
 env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
 
@@ -78,5 +78,5 @@ def nojekyll():
     print(f"[Tạo] {nojekyll_file}")
     
 if __name__ == '__main__':
-    nojekyll()
     traverse_content_dir()
+    nojekyll()

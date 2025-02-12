@@ -11,6 +11,20 @@ on:
       - static/**
       - requirements.txt
 
+  # Cho phép chạy thủ công từ giao diện Actions
+  workflow_dispatch:
+
+# Cấu hình quyền cho GITHUB_TOKEN
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Giới hạn chỉ một deployment chạy cùng lúc
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -37,9 +51,20 @@ jobs:
         run: |
           python generate.py
 
-      # Bước 5: Deploy lên GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
+          # Vì mdBook khi build sẽ tạo ra thư mục "book" bên trong docs
+          path: docs/website/
+
+  # Job triển khai tài liệu lên GitHub Pages
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
