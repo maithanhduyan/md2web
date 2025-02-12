@@ -4,6 +4,13 @@ name: Deploy mdBook Site to GitHub Pages
 on:
   push:
     branches: [ "master" ]
+    paths:
+      - '**/*.md'
+      - generate.py
+      - templates/**
+      - static/**
+      - requirements.txt
+      
   pull_request:
     branches: [ "master" ]
 
