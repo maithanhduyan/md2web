@@ -68,6 +68,6 @@ if __name__ == '__main__':
     extensions = ['.py']  # Danh sách các phần mở rộng tệp
     filenames = []  # Danh sách các tên tệp cụ thể
     exclude_dirs = ['node_modules', 'data', '.tools', '.vscode', '.git', 'lib', '.venv', 'venv']  # Thư mục cần bỏ qua
-    exclude_files = ['.gitignore', 'requirements.txt', 'README.md', '.github', '.site', '__pycache__','static']  # Tệp cần bỏ qua
+    exclude_files = ['.gitignore', 'requirements.txt', 'README.md', '.github', '.site', '__pycache__','static', 'LICENSE']  # Tệp cần bỏ qua
     files = collect_files(root_dir, extensions, filenames, exclude_dirs, exclude_files)
     write_markdown(files, output_file, root_dir, exclude_dirs, exclude_files)

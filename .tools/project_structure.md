@@ -97,8 +97,18 @@ def traverse_content_dir():
                 md_path = os.path.join(root, file)
                 process_markdown_file(md_path, relative_dir)
 
+def nojekyll():
+    """
+    Tạo file .nojekyll để GitHub Pages không xử lý Jekyll.
+    """
+    nojekyll_file = os.path.join(OUTPUT_DIR, '.nojekyll')
+    with open(nojekyll_file, 'w') as f:
+        f.write('')
+    print(f"[Tạo] {nojekyll_file}")
+    
 if __name__ == '__main__':
     traverse_content_dir()
+    nojekyll()
 
 ```
 
@@ -109,34 +119,42 @@ import time
 import os
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from generate import traverse_content_dir  # Giả sử hàm này build toàn bộ nội dung
+from generate import traverse_content_dir  # Hàm build toàn bộ nội dung
 
 CONTENT_DIR = 'content'
+TEMPLATE_DIR = 'templates'
 
-class MarkdownEventHandler(FileSystemEventHandler):
+class WatchEventHandler(FileSystemEventHandler):
     def on_modified(self, event):
-        # Chỉ xử lý nếu file được chỉnh sửa là file Markdown
-        if not event.is_directory and event.src_path.endswith('.md'):
-            print(f"[Modified] {event.src_path} đã thay đổi, cập nhật lại HTML...")
-            traverse_content_dir()  # Gọi hàm build toàn bộ hoặc có thể tùy chỉnh build cho file đó
+        # Nếu file không phải là thư mục
+        if not event.is_directory:
+            # Nếu file là Markdown hoặc file HTML trong templates (có thể có đuôi .html)
+            if event.src_path.endswith('.md') or event.src_path.endswith('.html'):
+                print(f"[Modified] {event.src_path} đã thay đổi, cập nhật lại HTML...")
+                traverse_content_dir()
 
     def on_created(self, event):
-        if not event.is_directory and event.src_path.endswith('.md'):
-            print(f"[Created] {event.src_path} được tạo mới, cập nhật lại HTML...")
-            traverse_content_dir()
+        if not event.is_directory:
+            if event.src_path.endswith('.md') or event.src_path.endswith('.html'):
+                print(f"[Created] {event.src_path} được tạo mới, cập nhật lại HTML...")
+                traverse_content_dir()
 
     def on_deleted(self, event):
-        if not event.is_directory and event.src_path.endswith('.md'):
-            print(f"[Deleted] {event.src_path} đã bị xóa, cập nhật lại HTML...")
-            traverse_content_dir()
+        if not event.is_directory:
+            if event.src_path.endswith('.md') or event.src_path.endswith('.html'):
+                print(f"[Deleted] {event.src_path} đã bị xóa, cập nhật lại HTML...")
+                traverse_content_dir()
 
 if __name__ == "__main__":
-    event_handler = MarkdownEventHandler()
+    event_handler = WatchEventHandler()
     observer = Observer()
+    # Theo dõi thư mục nội dung
     observer.schedule(event_handler, path=CONTENT_DIR, recursive=True)
+    # Theo dõi thư mục templates
+    observer.schedule(event_handler, path=TEMPLATE_DIR, recursive=True)
+    
     observer.start()
-
-    print(f"Đang theo dõi thay đổi trong thư mục '{CONTENT_DIR}'... (Nhấn Ctrl+C để dừng)")
+    print(f"Đang theo dõi thay đổi trong các thư mục '{CONTENT_DIR}' và '{TEMPLATE_DIR}'... (Nhấn Ctrl+C để dừng)")
     try:
         while True:
             time.sleep(1)
