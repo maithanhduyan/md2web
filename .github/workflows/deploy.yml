@@ -1,70 +1,25 @@
-name: Build and Deploy
+# File .github/workflows/deploy.yml
+name: Deploy
 
-on:
-  push:
-    branches: [main]
-    # Theo dõi thay đổi đối với các file có thể ảnh hưởng đến website:
-    paths:
-      - "**/*.md"
-      - generate.py
-      - templates/**
-      - static/**
-      - requirements.txt
-
-  # Cho phép chạy thủ công từ giao diện Actions
-  workflow_dispatch:
-
-# Cấu hình quyền cho GITHUB_TOKEN
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Giới hạn chỉ một deployment chạy cùng lúc
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      # Bước 1: Checkout mã nguồn
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # Bước 2: Thiết lập môi trường Python
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11" # Hoặc phiên bản bạn muốn sử dụng
+      - uses: actions/setup-python@v5
+        with: { python-version: 3.10 }
 
-      # Bước 3: Cài đặt dependencies
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+      - run: pip install -r requirements.txt
 
-      # Bước 4: Build website tĩnh
-      - name: Build static site
-        run: |
-          python generate.py
+      - name: Clean existing docs
+        run: rm -rf docs/* # Giữ lại thư mục docs nhưng xóa nội dung
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Vì mdBook khi build sẽ tạo ra thư mục "book" bên trong docs
-          path: docs/website/
+      - run: python generate.py
 
-  # Job triển khai tài liệu lên GitHub Pages
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: actions/upload-pages-artifact@v2
+        with: { path: "docs" }
+
+      - uses: actions/deploy-pages@v3

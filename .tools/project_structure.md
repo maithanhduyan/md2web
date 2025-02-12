@@ -13,6 +13,7 @@
 │   └── quotes
 │       ├── quote1.md
 │       └── quote2.md
+├── docs
 ├── generate.py
 ├── templates
 │   ├── base.html
@@ -35,7 +36,7 @@ from jinja2 import Environment, FileSystemLoader
 # Đường dẫn thư mục
 CONTENT_DIR = 'content'
 TEMPLATE_DIR = 'templates'
-OUTPUT_DIR = '.site'
+OUTPUT_DIR = 'docs'
 
 env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
 
