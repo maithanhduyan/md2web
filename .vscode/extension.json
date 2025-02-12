@@ -1,3 +1,17 @@
 {
-  "recommandations": ["kevinrose.vsc-python-indent", "ms-python.python"]
+  "recommandations": [
+    "kevinrose.vsc-python-indent",
+    "ms-python.python",
+    "PKief.material-icon-theme",
+    "naumovs.color-highlight",
+    "dbaeumer.vscode-eslint",
+    "mhutchie.git-graph",
+    "VisualStudioExptTeam.vscodeintellicode",
+    "ritwickdey.LiveServer",
+    "shd101wyy.markdown-preview-enhanced",
+    "esbenp.prettier-vscode",
+    "redhat.vscode-yaml",
+    "github.copilot-chat",
+    "github.copilot"
+  ]
 }

@@ -4,6 +4,7 @@
 ├── content
 │   ├── about.md
 │   ├── blogs
+│   │   ├── index.md
 │   │   ├── post1.md
 │   │   └── post2.md
 │   ├── index.md
@@ -32,11 +33,14 @@ import os
 import markdown
 import frontmatter
 from jinja2 import Environment, FileSystemLoader
+import shutil
+import sys
+from pathlib import Path
 
 # Đường dẫn thư mục
 CONTENT_DIR = 'content'
 TEMPLATE_DIR = 'templates'
-OUTPUT_DIR = 'docs'
+OUTPUT_DIR = Path('docs')
 
 env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
 
@@ -84,20 +88,25 @@ def process_markdown_file(md_path, relative_dir):
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(rendered_html)
     print(f"[Cập nhật] {output_file}")
+    return output_file
 
 def traverse_content_dir():
-    """
-    Duyệt đệ quy thư mục CONTENT_DIR và xử lý tất cả các file Markdown.
-    Cấu trúc thư mục OUTPUT_DIR sẽ tương ứng với cấu trúc thư mục CONTENT_DIR.
-    """
+    clean_output()  # Xóa toàn bộ nội dung cũ trước khi build
+    
+    generated_paths = set()  # Lưu trữ các file đã tạo
+    
     for root, dirs, files in os.walk(CONTENT_DIR):
-        # Lấy đường dẫn tương đối so với CONTENT_DIR
         relative_dir = os.path.relpath(root, CONTENT_DIR)
         for file in files:
             if file.endswith('.md'):
                 md_path = os.path.join(root, file)
-                process_markdown_file(md_path, relative_dir)
-
+                output_path = process_markdown_file(md_path, relative_dir)
+                if output_path:
+                    generated_paths.add(output_path)
+    
+    print("✅ Build thành công!")
+    
+    
 def nojekyll():
     """
     Tạo file .nojekyll để GitHub Pages không xử lý Jekyll.
@@ -107,9 +116,30 @@ def nojekyll():
         f.write('')
     print(f"[Tạo] {nojekyll_file}")
     
+    
+# Thêm hàm clean_output và sửa logic chính
+def clean_output():
+    """Phiên bản dùng pathlib an toàn hơn"""
+    if OUTPUT_DIR.exists():
+        for item in OUTPUT_DIR.iterdir():
+            try:
+                if item.is_file() or item.is_symlink():
+                    item.unlink()  # Xóa file
+                elif item.is_dir():
+                    shutil.rmtree(item)  # Xóa thư mục
+            except Exception as e:
+                print(f"⚠️ Không thể xóa {item}: {e}")
+            
 if __name__ == '__main__':
-    traverse_content_dir()
-    nojekyll()
+    try:
+        print("🔄 Đang bắt đầu quá trình build...")
+        traverse_content_dir()
+        nojekyll()
+    except Exception as e:
+        print(f"❌ Lỗi nghiêm trọng: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 ```
 
