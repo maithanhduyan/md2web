@@ -7,6 +7,8 @@ import sys
 from pathlib import Path
 
 # Đường dẫn thư mục
+GITHUB_PAGES_REPO_NAME = "https://maithanhduyan.github.io/md2web/"  # 🚨 Điền tên repo của bạn (nếu là Project site)
+BASE_URL = f"/{GITHUB_PAGES_REPO_NAME}" if GITHUB_PAGES_REPO_NAME else ""
 CONTENT_DIR = 'content'
 TEMPLATE_DIR = 'templates'
 OUTPUT_DIR = Path('docs')

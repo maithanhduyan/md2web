@@ -1,7 +1,7 @@
 ---
 title: "Trang chủ"
 description: "Chào mừng đến với website của tôi"
-layout: "blog"
+layout: "base"
 ---
 
 # Kẻ mạnh tự mình tỉnh thức, kẻ yếu tỉnh ngộ trong nỗi đau

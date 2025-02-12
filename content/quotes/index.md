@@ -7,4 +7,4 @@ image: "/static/images/post1-thumbnail.jpg"
 layout: "quotes"
 ---
 
-# Quotes 1
+# Quotes

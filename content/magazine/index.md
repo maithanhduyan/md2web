@@ -1,10 +1,10 @@
 ---
-title: "Quotes"
-description: "Quotes"
+title: "Magazine"
+description: "Magazine"
 date: "2025-02-12"
 keywords: "python, markdown, tĩnh, web"
 image: "/static/images/post1-thumbnail.jpg"
-layout: "quotes"
+layout: "magazine"
 ---
 
-# Quotes 1
+# Magazine
