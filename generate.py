@@ -68,5 +68,15 @@ def traverse_content_dir():
                 md_path = os.path.join(root, file)
                 process_markdown_file(md_path, relative_dir)
 
+def nojekyll():
+    """
+    Tạo file .nojekyll để GitHub Pages không xử lý Jekyll.
+    """
+    nojekyll_file = os.path.join(OUTPUT_DIR, '.nojekyll')
+    with open(nojekyll_file, 'w') as f:
+        f.write('')
+    print(f"[Tạo] {nojekyll_file}")
+    
 if __name__ == '__main__':
     traverse_content_dir()
+    nojekyll()
